@@ -16,14 +16,14 @@
           <div class="form-group">
             <label for="kerusakan">Pilih Kerusakan</label>
             <select name="kerusakan" id="kerusakan" class="form-control">
-              <option value="<?= $P['id_kerusakan']; ?>" selected><?= $P['kode_kerusakan']; ?> - <?= $P['nama_kerusakan']; ?></option>
+              <option value="<?= $P['kode_kerusakan']; ?>" selected><?= $P['kode_kerusakan']; ?> - <?= $P['nama_kerusakan']; ?></option>
               <?php foreach ($kerusakan as $k) : ?>
                 <option value="<?= $k['id_kerusakan']; ?>"><?= $k['kode_kerusakan']; ?>-<?= $k['nama_kerusakan']; ?></option>
               <?php endforeach; ?>
             </select>
             <label for="gejala">Pilih Gejala</label>
             <select name="gejala" id="gejala" class="form-control">
-              <option value="<?= $P['id_gejala']; ?>"><?= $P['kode_gejala']; ?>-<?= $P['nama_gejala']; ?></option>
+              <option value="<?= $P['kode_gejala']; ?>"><?= $P['kode_gejala']; ?>-<?= $P['nama_gejala']; ?></option>
               <?php foreach ($gejala as $g) : ?>
                 <option value="<?= $g['id_gejala']; ?>"><?= $g['kode_gejala']; ?> - <?= $g['nama_gejala']; ?></option>
               <?php endforeach; ?>

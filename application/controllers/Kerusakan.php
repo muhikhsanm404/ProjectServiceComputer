@@ -64,55 +64,73 @@ class Kerusakan extends CI_Controller
     }
   }
 
-
-
-
   // Ubah Kerusakan
   public function ubahkerusakan()
   {
-    $data['user'] = $this->db->get_where('tbl_user', [
-      'username' => $this->session->userdata('username')
-    ])->row_array();
+    try {
+      $data['user'] = $this->db->get_where('tbl_user', ['username' => $this->session->userdata('username')])->row_array();
 
-    // cek jika ada gambar yang akan diupload
-    if (isset($_FILES['gambar'])) {
-      $upload_image = $_FILES['gambar']['name'];
-    }
+      // Mendapatkan ID dari form
+      $id = $this->input->post('id');
 
-    if ($upload_image) {
-      $config['allowed_types'] = 'jpg|png';
-      $config['max_size'] = '4096';
-      $config['upload_path'] = '/assets/images/kerusakan/';
+      // Memeriksa apakah ada gambar yang akan diupload
+      if (!empty($_FILES['gambar']['name'])) {
+        $upload_image = $_FILES['gambar']['name'];
 
-      $this->load->library('upload', $config);
-      if ($this->upload->do_upload('gambar')) {
-        // $old_image = $data['tbl_kerusakan']['gambar'];
-        // if ($old_image != 'user.png') {
-        //     unlink(FCPATH . 'assets/images/kerusakan/' . $old_image);
-        // }
+        $config['allowed_types'] = 'jpg|png';
+        $config['max_size'] = '4096';
+        $config['upload_path'] = './assets/images/kerusakan/';
 
-        $new_image = $this->upload->data('file_name');
+        $this->load->library('upload', $config);
 
-        $data['tbl_kerusakan']['gambar'] = $new_image;
-        $this->db->update('tbl_kerusakan', $data['tbl_kerusakan'], ['id' => $data['id']]);
+        if ($this->upload->do_upload('gambar')) {
+          $new_image = $this->upload->data('file_name');
 
-        if (isset($data['tbl_kerusakan'])) {
+          // Mengupdate data, termasuk gambar, pada tabel 'tbl_kerusakan'
+          $data['tbl_kerusakan'] = [
+            'gambar' => $new_image, // Mengubah gambar
+            'nama_kerusakan' => $this->input->post('nama'),
+            'solusi' => $this->input->post('solusi'),
+            'probabilitas' => $this->input->post('probabilitas')
+            // Kolom-kolom lain yang akan diubah sesuai kebutuhan
+          ];
+
+          // Melakukan update pada ID yang sesuai
+          $this->db->where('id_kerusakan', $id);
+          $this->db->update('tbl_kerusakan', $data['tbl_kerusakan']);
 
           $this->session->set_flashdata('message', 'Data kerusakan berhasil diubah');
           redirect('kerusakan');
         } else {
           $this->session->set_flashdata('error', $this->upload->display_errors());
-          redirect('kerusakan/ubah/' . $data['id']);
+          redirect('kerusakan/ubah/' . $id);
         }
       } else {
-        $this->db->update('tbl_kerusakan', $data['tbl_kerusakan'], ['id' => $data['id']]);
+        // Tidak ada gambar yang diupload
+        // Lakukan proses update data lainnya tanpa gambar
 
-        $this->session->set_flashdata('message', 'Data kerusakan berhasil diubah');
+        $data['tbl_kerusakan'] = [
+          'nama_kerusakan' => $this->input->post('nama'),
+          'solusi' => $this->input->post('solusi'),
+          'probabilitas' => $this->input->post('probabilitas')
+          // Kolom-kolom lain yang akan diubah sesuai kebutuhan
+        ];
+
+        // Melakukan update pada ID yang sesuai
+        $this->db->where('id_kerusakan', $id);
+        $this->db->update('tbl_kerusakan', $data['tbl_kerusakan']);
+
+        $this->session->set_flashdata('pesan', '<div class="alert alert-success" role="alert">Data kerusakan berhasil diubah</div>');
         redirect('kerusakan');
       }
+    } catch (Exception $e) {
+      log_message('error', $e->getMessage());
+      $this->session->set_flashdata('pesan', '<div class="alert alert-danger" role="alert">Terjadi kesalahan saat mengubah data kerusakan.</div>');
+      redirect('kerusakan');
     }
   }
-  
+
+  //Hapus
   public function hapus($id)
   {
     $this->kerusakan->hapusKerusakan($id);
